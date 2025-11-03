@@ -26,6 +26,7 @@ def user_menu():
         ISBN_base.create_db_ISBN(data_path)
         all_recs = ISBN_base.getAllRecs()
         print(f"已创建新数据库，条目总计: {all_recs}")
+        
         # 删除使用过的临时文件，但保留提供的Excel文件
         try:
             delf.del_file(data_path)

@@ -1,3 +1,4 @@
+"""自定义的删除函数"""
 import os
 
 def del_file(files_path):

@@ -17,10 +17,9 @@
 ## 技术栈
 
 - Python 3.7+
-- `pandas`：数据处理
+- `pandas`：数据处理与读取文件(.csv与.xlsx)
 - `sqlite3`：本地数据库
-- `tkinter`：图形界面，仅用于拉取选择文件界面（Python 3.7+自带）
-- `openpyxl`：读取 Excel 文件
+- `tkinter`：图形界面，仅用于拉取选择文件界面(Python 3.7+自带)
 
 > 本项目推荐在本地运行
 
@@ -29,8 +28,7 @@
 ### 1. 克隆仓库
 
 ```bash
-git clone https://github.com/T34851969/MyProj.git
-cd ISBN_query
+git clone https://github.com/T34851969/ISBN_query.git
 ```
 
 ### 2. 安装与依赖
@@ -43,7 +41,7 @@ pip install pandas openpyxl
 
 ### 3. 准备数据
 
-- 将 .xlsx 或 .csv 文件放在项目根目录，只读取一个
+- 将 .xlsx 文件放在项目根目录，支持读取多个，并读取全部工作表。仅支持.xlsx
 
 ### 4. 运行
 
@@ -61,16 +59,22 @@ python main.py
 ## 项目结构
 
 ```结构
-.
-├── main.py          # 入口脚本
-├── db.py                        # 数据库类与查询逻辑
-├── tools.py                     # 工具函数（查找 Excel ）
-├── gui.py                       # 交互逻辑实现（包括tkinter）
-├── README.md                    # 本说明文件
-├── 馆藏.csv                     # 数据（需自行提供）
-├── ISBN数据库.db             # 自动生成的数据库（运行后产生）
-├── 新项.txt      # 搜索结果，可能为空
-└── 重复项.txt    # 搜索结果，可能为空
+- ISBN_query  # 工作目录
+  - FileMgr  # 存放交互组件
+    - __init__.py  # 初始化文件
+    - del_files.py  # 自定义删除功能，用于删除临时文件
+    - engage.py  # 本工作夹主模块
+    - read_xl.py  # 读取.xlsx文件
+    - scan_xl.py  # 提供根目录下.xlsx文件目录
+    - wash_xl.py  # 数据清洗与输出，输出.csv文件
+  - __init__.py
+  - db.py  # 数据库文件
+  - main.py  # 主函数，启动程序
+  - menu.py  # 交互逻辑文件
+  - ISBN数据库.db(如果你创建了)
+  - .gitgnore
+  - (自选xlsx文件)
+  - (临时生成的.csv文件)
 ```
 
 ## 许可证

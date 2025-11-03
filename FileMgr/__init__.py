@@ -1,3 +1,3 @@
-# version 0.0.1
+# version 0.0.2
 
-__all__ = ["engage.py", "csv_read.py", "scan_xl.py", "del_files.py"]
+__all__ = ["engage", "read_xl", "scan_xl", "del_files"]
