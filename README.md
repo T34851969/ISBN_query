@@ -58,22 +58,23 @@ python main.py
 
 ## 项目结构
 
-- ISBN_query ———— 工作目录
-  - FileMgr ———— 存放交互组件
-    - __init__.py ———— 初始化文件
-    - del_files.py ———— 自定义删除功能，用于删除临时文件
-    - engage.py ———— 本工作夹主模块
-    - read_xl.py ———— 读取.xlsx文件
-    - scan_xl.py ———— 提供根目录下.xlsx文件目录
-    - wash_xl.py ———— 数据清洗与输出，输出.csv文件
-  - __init__.py
-  - db.py ———— # 数据库文件
-  - main.py ———— # 主函数，启动程序
-  - menu.py ———— # 交互逻辑文件
-  - ISBN.db (如果你创建了)
-  - .gitgnore
-  - (自选.xlsx文件)
-  - (临时生成的.csv文件)
+- ISBN_query  # 工作目录
+- `ISBN_query/` — 项目根目录
+  - `FileMgr/` — 文件管理与交互模块
+    - `__init__.py` — 包初始化
+    - `del_files.py` — 删除临时/中间生成文件的工具
+    - `engage.py` — FileMgr 的主流程与交互逻辑
+    - `read_xl.py` — 读取 `.xlsx` 文件（支持多工作表）
+    - `scan_xl.py` — 扫描根目录下的 `.xlsx` 文件列表
+    - `wash_xl.py` — 数据清洗并导出为 `.csv`
+  - `__init__.py`
+  - `db.py` — SQLite 数据库操作（建库 / 查询）
+  - `main.py` — 程序入口，启动主流程
+  - `menu.py` — 命令行交互菜单逻辑
+  - `ISBN数据库.db`（可选）— 本地 SQLite 数据库文件
+  - `.gitignore`
+  - 可选输入：用户提供的 `.xlsx` 文件（放在项目根目录）
+  - 输出/临时：程序生成的 `.csv` 文件（可由 `del_files.py` 清理）
 
 ## 许可证
 
