@@ -58,24 +58,22 @@ python main.py
 
 ## 项目结构
 
-```结构
-- ISBN_query  # 工作目录
-  - FileMgr  # 存放交互组件
-    - __init__.py  # 初始化文件
-    - del_files.py  # 自定义删除功能，用于删除临时文件
-    - engage.py  # 本工作夹主模块
-    - read_xl.py  # 读取.xlsx文件
-    - scan_xl.py  # 提供根目录下.xlsx文件目录
-    - wash_xl.py  # 数据清洗与输出，输出.csv文件
+- ISBN_query ———— 工作目录
+  - FileMgr ———— 存放交互组件
+    - __init__.py ———— 初始化文件
+    - del_files.py ———— 自定义删除功能，用于删除临时文件
+    - engage.py ———— 本工作夹主模块
+    - read_xl.py ———— 读取.xlsx文件
+    - scan_xl.py ———— 提供根目录下.xlsx文件目录
+    - wash_xl.py ———— 数据清洗与输出，输出.csv文件
   - __init__.py
-  - db.py  # 数据库文件
-  - main.py  # 主函数，启动程序
-  - menu.py  # 交互逻辑文件
-  - ISBN数据库.db(如果你创建了)
+  - db.py ———— # 数据库文件
+  - main.py ———— # 主函数，启动程序
+  - menu.py ———— # 交互逻辑文件
+  - ISBN.db (如果你创建了)
   - .gitgnore
-  - (自选xlsx文件)
+  - (自选.xlsx文件)
   - (临时生成的.csv文件)
-```
 
 ## 许可证
 

@@ -1,7 +1,8 @@
+"""读取Excel文件所有工作表的A列数据"""
+
 import pandas as pd
 
 def read(filePath):
-    """读取Excel文件所有工作表的A列数据"""
     data_list = []
 
     try:

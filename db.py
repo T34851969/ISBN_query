@@ -4,7 +4,7 @@ from pathlib import Path
 from contextlib import contextmanager
 
 class ISBN_database:
-    def __init__(self, database_path = "ISBN数据库.db"):
+    def __init__(self, database_path = "ISBN.db"):
         self.database_path = database_path
         self.conn_progress = None
     

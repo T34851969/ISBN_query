@@ -7,10 +7,10 @@ def wash(selected):
     rawISBN = []
     
     for file in selected:
-        print(f"处理文件: {file}")
+        print(f"处理: {file} 中")
         rawData = read_xl.read(file)
         rawISBN.extend(rawData)
-        print(f"  - 正在读取 {file} 的 {len(rawData)} 条数据")
+        print(f"  - 正在读取 {file} , {len(rawData)} 条")
     
     print(f"\n共读取 {len(rawISBN)} 条ISBN")
     
@@ -29,10 +29,10 @@ def wash(selected):
             duplCount += 1
     
     print(f"去重后剩余 {len(onlyISBN)} 条，移除 {duplCount} 条")
-    o_name = "ISBN.csv"
+    out = "ISBN.csv"
     
     # 创建DataFrame
     df_output = pd.DataFrame({'ISBN': onlyISBN})
-    df_output.to_csv(o_name, index=False, encoding='utf-8-sig')
-    print(f"数据已保存到 {o_name}")
+    df_output.to_csv(out, index=False, encoding='utf-8-sig')
+    print(f"数据已保存到 {out}")
     print(f"处理完成！共找到 {len(onlyISBN)} 条ISBN。")
