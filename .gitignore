@@ -215,11 +215,36 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
+# 自定义忽略
 *.db
 脚本库/
+output/
 .vscode/
 *.pyc
 *.xls
 *.xlsx
 *.csv
+.github/
 
+# test files
+*test*
+tests/
+__tests__/
+*.log
+*.tmp
+*.temp
+*.bak
+*.old
+*.orig
+*.swp
+.DS_Store
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+pip-wheel-metadata/
+__pypackages__/
+.env
+.venv/
+env/
