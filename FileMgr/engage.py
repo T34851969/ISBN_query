@@ -1,6 +1,5 @@
 """主处理函数，包括查找文件，数据清洗及转化，最终输出"""
 
-import pandas as pd
 from FileMgr import scan_xl
 from FileMgr import wash_xl
 

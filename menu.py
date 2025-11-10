@@ -3,7 +3,7 @@
 import tkinter as Tk
 from tkinter import filedialog
 # 自带库文件
-from db import ISBN_database
+from db import ISBN_Database
 from FileMgr import engage as eg
 from FileMgr import del_files as delf
 
@@ -12,7 +12,7 @@ def user_menu():
     print("图书馆馆藏ISBN号检索系统")
     print("=" * 30)
 
-    ISBN_base = ISBN_database()
+    ISBN_base = ISBN_Database()
     if not ISBN_base.isDB():
         print("未找到数据库，从数据文件创建...")
 
