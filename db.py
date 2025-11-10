@@ -3,7 +3,7 @@ import sqlite3
 from pathlib import Path
 from contextlib import contextmanager
 
-class ISBN_database:
+class ISBN_Database:
     def __init__(self, database_path = "ISBN.db"):
         self.database_path = database_path
         self.conn_progress = None
@@ -74,14 +74,14 @@ class ISBN_database:
         ISBN_new = [ISBN.replace("-", "").replace(" ", "") for ISBN in ISBN_list if ISBN.strip()]
         if not ISBN_new:
             return set()
-        
-        is_ISBN = set()
-        batch_size = 500  # 分批处理防止参数过多
-        for i in range(0, len(ISBN_new), batch_size):
-            batch = ISBN_new[i:i+batch_size]
-            params = ','.join(['?']*len(batch))
             
-            with self.getConn() as conn:
+        with self.getConn() as conn:
+            is_ISBN = set()
+            batch_size = 500  # 分批处理防止参数过多
+            for i in range(0, len(ISBN_new), batch_size):
+                batch = ISBN_new[i:i+batch_size]
+                params = ','.join(['?']*len(batch))
+            
                 sql = f"SELECT ISBN FROM ISBN WHERE ISBN IN ({params})"
                 cursor = conn.execute(sql, batch)
                 is_ISBN.update({line[0] for line in cursor.fetchall()})
