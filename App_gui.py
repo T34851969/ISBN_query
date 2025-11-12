@@ -1,18 +1,14 @@
 from fastapi import UploadFile
 from nicegui import ui
-import os
-import signal
 import asyncio
 from starlette.formparsers import MultiPartParser
-from App_Logger import Global_logger as Logger
+from App_Logger import Global_logger
 
 MultiPartParser.spool_max_size = 1024 * 1024 * 50
 
-
-
 class Aplication:
     def __init__(self):
-        self.logger = Logger
+        Global_logger.append("应用启动")
 
     def _build_ui(self) -> None:
         ui.markdown('# **ISBN 查重系统**').style("align-self:center;")
@@ -53,28 +49,29 @@ class Aplication:
 
             with ui.tab_panel(tab3):
                 ui.markdown('## **更新数据库**')
-                ui.upload(auto_upload=True, on_upload=self._send_to_update).style(
+                ui.markdown(
+                    '### **上传 .xlsx 或 .csv 文件，系统自动更新：**')
+                ui.upload(auto_upload=True, multiple=True, on_upload=self._send_to_update).style(
                     "font-size:20px;")
-                ui.button('更新', on_click=self._update_db).style(
-                    "font-size:22px;")
 
         ui.markdown('## **运行日志**').style("align-self:center;")
-        self.log_area = ui.textarea(value=self.logger.get_all(), ).style(
+        self.log_area = ui.textarea(value=Global_logger.get_all(), ).style(
             "width:800px; height:300px;")
         self.log_area.readonly = True
 
-        ui.button('清空日志', on_click=self.logger.clear).style(
+        ui.button('清空日志', on_click=Global_logger.clear).style(
             'position: fixed; bottom: 20px; left: 20px; font-size: 16px; padding: 10px 20px;')
-        ui.button('导出日志', on_click=self.logger.get_all).style(
+        ui.button('导出日志', on_click=Global_logger.get_all).style(
             'position: fixed; bottom: 60px; left: 20px; font-size: 16px; padding: 10px 20px;')
+        
         ui.button('关闭应用', on_click=self._close_app).style(
             'position: fixed; bottom: 20px; right: 20px; font-size: 16px; padding: 10px 20px;')
 
     def _on_new_log(self, text: str) -> None:
         try:
-            self.logger.append(text)  # 记录日志到 Logger
+            self.Global_logger.append(text)  # 记录日志到 Logger
             if self.log_area:
-                self.log_area.value = self.logger.get_all()  # 刷新日志显示
+                self.log_area.value = Global_logger.get_all()  # 刷新日志显示
                 ui.run_javascript(
                     "var t = document.querySelector('textarea[readonly]'); if (t) { t.scrollTop = t.scrollHeight; }")
         except Exception:
@@ -91,11 +88,13 @@ class Aplication:
 
     def _send_to_update(self, file: UploadFile) -> None:
         pass
-    
+
     async def _close_app(self):
         ui.run_javascript('window.close();')
-        await asyncio.sleep(0.8)
+        await asyncio.sleep(0.3)
         try:
+            import os, signal
             os.kill(os.getpid(), signal.SIGINT)
         except Exception:
+            import os
             os._exit(0)
