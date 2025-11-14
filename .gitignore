@@ -217,7 +217,7 @@ __marimo__/
 
 # 自定义忽略
 *.db
-脚本库/
+*脚本*/
 output/
 .vscode/
 *.pyc
