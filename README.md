@@ -1,81 +1,76 @@
+
 # ISBN查重系统
 
-一个基于 Python 和 SQLite 的本地图书馆馆藏查重系统，基于馆藏ISBN条目对输入的条目进行查重，支持单次与批量查重。适用于馆藏拉取比对。
+本项目是一个基于 Python、SQLite 和 NiceGUI 的本地图书馆ISBN查重系统，支持单次和批量查重，适合馆藏数据比对和管理。
 
-## 功能
+## 功能简介
 
-- **检索**
-  - 仅支持ISBN输入
-  - 支持直接输入ISBN
-  - 支持导入.txt文件进行批量查询
-- **自动建库**
-  - 首次运行时从 .xlsx 或 .csv 文件创建SQLite库
-- **输出**
-  - 单次查询，直接在终端输出“存在”/“不存在”
-  - 批量查询，输出“重复项.txt”与“新项.txt”，前者保存重复的项目，后者保存馆藏不包含的项目
+- **ISBN检索**
+  - 支持单个ISBN输入查重
+  - 支持批量ISBN查重（输入框或上传文件）
+- **数据库管理**
+  - 首次运行可自动从 `.xlsx` 或 `.csv` 文件创建本地SQLite数据库
+  - 支持后续上传文件批量更新数据库
+- **日志记录**
+  - 全局日志记录，支持查看、清空和导出
+- **界面**
+  - 提供基于 NiceGUI 的Web界面，支持文件上传、查重、数据库更新等操作
 
 ## 技术栈
 
-- Python 3.7+
-- `pandas`：数据处理与读取文件(.csv与.xlsx)
-- `sqlite3`：本地数据库
-- `tkinter`：图形界面，仅用于拉取选择文件界面(Python 3.7+自带)
-
-> 本项目推荐在本地运行
+- Python 3.14
+- pandas：数据处理与文件读取。包括 pandas-calamine
+- sqlite3：本地数据库
+- nicegui：Web界面
+- fastapi：文件上传接口
+- asyncio、threading：异步与线程安全
 
 ## 安装与运行
 
-### 1. 克隆仓库
+1. **克隆仓库**
 
-```bash
-git clone https://github.com/T34851969/ISBN_query.git
+   ```bash
+   git clone https://github.com/T34851969/ISBN_query.git
+   ```
+
+2. **安装依赖**
+
+   ```bash
+   pip install pandas nicegui fastapi
+   ```
+
+3. **准备数据**
+   - 将 `.xlsx` 或 `.csv` 文件放在项目根目录，作为初始馆藏数据
+
+4. **运行项目**
+
+   ```bash
+   python main.py
+   ```
+
+   - 启动后访问本地Web界面进行查重和管理
+
+## 主要文件说明
+
+- [`main.py`](main.py )：程序入口，初始化数据库和界面
+- [`App_core.py`](App_core.py )：数据库管理与初始化
+- [`App_search.py`](App_search.py )：ISBN查重逻辑（单次/批量）
+- [`App_gui.py`](App_gui.py )：Web界面与交互逻辑
+- [`App_Logger.py`](App_Logger.py )：全局日志记录器
+
+## 结构
+
+```项目结构
+ISBN_query/
+├── App_core.py
+├── App_gui.py
+├── App_Logger.py
+├── App_search.py
+├── main.py
+├── README.md
+├── .gitignore
 ```
-
-### 2. 安装与依赖
-
-```bash
-pip install pandas openpyxl
-```
-
-- 另请自行删除不需要的部分
-
-### 3. 准备数据
-
-- 将 .xlsx 文件放在项目根目录，支持读取多个，并读取全部工作表。仅支持.xlsx
-
-### 4. 运行
-
-```bash
-python main.py
-```
-
-> 或者，打开VS Code，在安装Python之后直接运行
-
-## 界面
-
-- 命令行终端，输出：“请选择：\n 1、搜索 \n 2、批量查询 \n 3、退出\n > ”
-- 若选择 2 ，则启动一个文件选择界面
-
-## 项目结构
-
-- ISBN_query  # 工作目录
-- `ISBN_query/` — 项目根目录
-  - `FileMgr/` — 文件管理与交互模块
-    - `__init__.py` — 包初始化
-    - `del_files.py` — 删除临时/中间生成文件的工具
-    - `engage.py` — FileMgr 的主流程与交互逻辑
-    - `read_xl.py` — 读取 `.xlsx` 文件（支持多工作表）
-    - `scan_xl.py` — 扫描根目录下的 `.xlsx` 文件列表
-    - `wash_xl.py` — 数据清洗并导出为 `.csv`
-  - `__init__.py`
-  - `db.py` — SQLite 数据库操作（建库 / 查询）
-  - `main.py` — 程序入口，启动主流程
-  - `menu.py` — 命令行交互菜单逻辑
-  - `ISBN数据库.db`（可选）— 本地 SQLite 数据库文件
-  - `.gitignore`
-  - 可选输入：用户提供的 `.xlsx` 文件（放在项目根目录）
-  - 输出/临时：程序生成的 `.csv` 文件（可由 `del_files.py` 清理）
 
 ## 许可证
 
-- 本项目是个人学习办公编程的阶段性作品，如有不足请多关照。可供个人学习，不用于商业用途
+仅供个人学习和办公使用，禁止商业用途。如有建议欢迎反馈。
