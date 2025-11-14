@@ -3,18 +3,16 @@ import io
 import sqlite3
 from pathlib import Path
 from App_logger import Global_logger
-
 class ISBN_Database:
-
     PATH: str = 'ISBN.db'
 
-    def __init__(self) -> None:
-        self.path = ISBN_Database.PATH
+    def __init__(self, path: str = None) -> None:
+        self.path = path if path else ISBN_Database.PATH
         self.conn = None
         self.support_args = ['single', 'multi']
 
     def __enter__(self) -> sqlite3.Connection:
-        self.conn = sqlite3.connect(ISBN_Database.PATH)
+        self.conn = sqlite3.connect(self.path)
         self.conn.execute("PRAGMA cache_size = 100000")
         self.conn.execute("PRAGMA temp_store = MEMORY")
         return self.conn
@@ -28,12 +26,28 @@ class ISBN_Database:
 
     async def create_database(self, **kwargs) -> None:
         """创建ISBN数据库库表"""
+        import os
+        # 自动生成数据库名
+        db_name = None
+        if 'single' in kwargs and kwargs['single']:
+            file = kwargs['single']
+            base = os.path.splitext(file.name)[0]
+            db_name = f"{base}.db"
+        elif 'multi' in kwargs and kwargs['multi']:
+            files = kwargs['multi']
+            # 只取第一个文件名作为数据库名
+            base = os.path.splitext(files[0].name)[0]
+            db_name = f"{base}.db"
+        else:
+            db_name = ISBN_Database.PATH
+        self.path = db_name
+
         data = await Tools.uni_entry(self, **kwargs)
         data = data.drop_duplicates()
         data.columns = ['ISBN']
         data = data[data['ISBN'] != '标准号']
-        Global_logger.append("正在创建数据库，请稍候...")
-        with sqlite3.connect(ISBN_Database.PATH) as conn:
+        Global_logger.append(f"正在创建数据库 {self.path}，请稍候...")
+        with sqlite3.connect(self.path) as conn:
             data.to_sql('ISBN_table', conn,
                         if_exists='replace', index=False)
             conn.execute("PRAGMA cache_size = 100000")
@@ -46,15 +60,31 @@ class ISBN_Database:
     async def update_database(self, **kwargs):
         """更新ISBN数据库库表"""
         data = await Tools.uni_entry(self, **kwargs)
-        
         data = data.drop_duplicates()
-        data.columns = ['ISBN']
-        data = data[data['ISBN'] != '标准号']
+
+        # 自动识别ISBN列
+        isbn_col_candidates = ['ISBN', '标准号', 'ISBN标准号']
+        isbn_col = None
+        for col in isbn_col_candidates:
+            if col in data.columns:
+                isbn_col = col
+                break
+
+        if not isbn_col:
+            Global_logger.append("文件缺少 ISBN/标准号/ISBN标准号 列。")
+            return
+
+        # 只保留ISBN列，并清洗数据
+        df = data[[isbn_col]].copy()
+        df = df[df[isbn_col].notnull()]
+        df = df[df[isbn_col] != '标准号']
+        df[isbn_col] = df[isbn_col].astype(str).str.replace('-', '').str.replace(' ', '')
+        df.columns = ['ISBN']  # 只剩一列，安全赋值
 
         Global_logger.append("正在更新数据库，请稍候...")
 
-        with sqlite3.connect(ISBN_Database.PATH) as conn:
-            data.to_sql('Temp_ISBN', conn, if_exists='replace', index=False)
+        with sqlite3.connect(self.path) as conn:
+            df.to_sql('Temp_ISBN', conn, if_exists='replace', index=False)
             conn.execute("PRAGMA cache_size = 100000")
             conn.execute("PRAGMA temp_store = MEMORY")
             conn.execute(
