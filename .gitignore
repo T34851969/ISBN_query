@@ -224,7 +224,6 @@ output/
 *.xls
 *.xlsx
 *.csv
-.github/
 
 # test files
 *test*
