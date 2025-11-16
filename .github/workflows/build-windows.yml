@@ -29,22 +29,18 @@ concurrency:
 env:
   APP_NAME: ISBNQuery
   OUTPUT_DIR: out
-  DIST_ZIP_NAME: ${{ env.APP_NAME }}-windows-x64.zip
+  DIST_ZIP_NAME: ISBNQuery-windows-x64.zip
 
 jobs:
   build:
     name: Build Windows executable
     runs-on: windows-latest
+    env:
+      PYTHON_VERSION: ${{ github.event.inputs.python-version || '3.11' }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Determine cache key and Python version
-        id: vars
-        shell: bash
-        run: |
-          echo "PYTHON_VERSION=${{ github.event.inputs.python-version || '3.11' }}" >> $GITHUB_ENV
 
       - name: Setup Python
         uses: actions/setup-python@v5
