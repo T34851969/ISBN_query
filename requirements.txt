@@ -1,0 +1,15 @@
+# Runtime dependencies for ISBN_query
+# Adjust versions as needed for your environment/CI
+pandas>=2.1.0,<3
+openpyxl>=3.1.2
+pandas-calamine>=0.7.0
+nicegui>=1.19.0
+fastapi>=0.95.2
+uvicorn>=0.22.0
+# Optional: excel xls legacy engine
+xlrd>=2.0.1
+
+# Development / build-time
+pyinstaller>=5.10.0
+# CLI helpers for local development (optional)
+python-dotenv>=1.0.0

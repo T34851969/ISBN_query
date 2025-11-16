@@ -18,7 +18,7 @@
 
 ## 技术栈
 
-- Python 3.14
+- Python 3.11
 - pandas：数据处理与文件读取。包括 pandas-calamine
 - sqlite3：本地数据库
 - nicegui：Web界面
@@ -52,10 +52,9 @@
 
 ## 主要文件说明
 
-- [`main.py`](main.py )：程序入口，初始化数据库和界面
+- [`main.py`](main.py )：程序入口，Web界面与交互逻辑
 - [`App_core.py`](App_core.py )：数据库管理与初始化
 - [`App_search.py`](App_search.py )：ISBN查重逻辑（单次/批量）
-- [`App_gui.py`](App_gui.py )：Web界面与交互逻辑
 - [`App_Logger.py`](App_Logger.py )：全局日志记录器
 
 ## 结构
@@ -73,4 +72,4 @@ ISBN_query/
 
 ## 许可证
 
-仅供个人学习和办公使用，禁止商业用途。如有建议欢迎反馈。
+供个人学习和办公使用
