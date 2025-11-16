@@ -14,7 +14,7 @@ on:
         required: false
         default: '3.11'
       build-type:
-        description: 'Build type: web or native' 
+        description: 'Build type: web or native'
         required: false
         default: 'web'
   push:
@@ -35,10 +35,6 @@ jobs:
   build:
     name: Build Windows executable
     runs-on: windows-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: [ ${{ github.event.inputs.python-version || '3.11' }} ]
 
     steps:
       - name: Checkout repository
@@ -46,13 +42,14 @@ jobs:
 
       - name: Determine cache key and Python version
         id: vars
+        shell: bash
         run: |
-          echo "PYTHON_VERSION=${{ matrix.python-version }}" >> $GITHUB_ENV
+          echo "PYTHON_VERSION=${{ github.event.inputs.python-version || '3.11' }}" >> $GITHUB_ENV
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Cache pip
         id: cache-pip
@@ -61,9 +58,9 @@ jobs:
           path: |
             ~\AppData\Local\pip\Cache
             .\.venv
-          key: pip-${{ matrix.python-version }}-${{ hashFiles('**/requirements.txt') }}
+          key: pip-${{ env.PYTHON_VERSION }}-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
-            pip-${{ matrix.python-version }}-
+            pip-${{ env.PYTHON_VERSION }}-
 
       - name: Create venv and upgrade pip
         run: |
@@ -88,6 +85,7 @@ jobs:
         env:
           NICEGUI_NATIVE: ${{ github.event.inputs.build-type == 'native' && '1' || '0' }}
           APP_NAME: ${{ env.APP_NAME }}
+          PYTHON_VERSION: ${{ env.PYTHON_VERSION }}
         shell: pwsh
         run: |
           $env:PY = ".\.venv\Scripts\python"
@@ -104,14 +102,7 @@ jobs:
           # Native (windowed) mode
           if ($env:NICEGUI_NATIVE -eq '1') { $pyinstallerFlags += ' --windowed' }
 
-          # The spec file (isbn_query.spec) already collects package data and hidden imports
-          # If you still want to add README.md or DBs via CLI, you can uncomment the following lines
-          # if (Test-Path README.md) { $pyinstallerFlags += ' --add-data "README.md;."' }
-          # Get-ChildItem -Filter *.db -File -ErrorAction SilentlyContinue | ForEach-Object { $pyinstallerFlags += " --add-data \"$($_.Name);.\"" }
-
-          # Print flags and run PyInstaller
           Write-Host "Running PyInstaller with flags: $pyinstallerFlags"
-          # Use the spec file for a more controlled build (collect_data_files/hiddenimports are handled in the .spec)
           & $env:PY -m PyInstaller $pyinstallerFlags isbn_query.spec
 
       - name: Package artifact and compute checksum
@@ -138,7 +129,7 @@ jobs:
           name: Release ${{ github.ref_name }}
           body: |
             Automated build of ${{ env.APP_NAME }} for Windows.
-            Built with Python ${{ matrix.python-version }} on ${{ runner.os }}.
+            Built with Python ${{ env.PYTHON_VERSION }} on ${{ runner.os }}.
 
       - name: Upload exe to release (if applicable)
         if: startsWith(github.ref, 'refs/tags/')
