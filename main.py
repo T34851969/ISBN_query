@@ -1,6 +1,6 @@
 from nicegui import ui
 from starlette.formparsers import MultiPartParser
-from App_logger import Global_logger
+from App_Logger import Global_logger
 from App_search import SearchEngine
 from App_core import ISBN_Database
 from nicegui.elements.upload import UploadEventArguments
