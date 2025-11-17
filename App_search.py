@@ -1,6 +1,6 @@
 import sqlite3
 import pandas as pd
-from App_logger import Global_logger
+from App_Logger import Global_logger
 from pathlib import Path
 
 

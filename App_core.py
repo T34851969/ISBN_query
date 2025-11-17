@@ -2,7 +2,7 @@ import pandas as pd
 import io
 import sqlite3
 from pathlib import Path
-from App_logger import Global_logger
+from App_Logger import Global_logger
 class ISBN_Database:
     PATH: str = 'ISBN.db'
 
