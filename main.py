@@ -5,7 +5,31 @@ from App_search import SearchEngine
 from App_core import ISBN_Database
 from nicegui.elements.upload import UploadEventArguments
 from nicegui.elements.upload import MultiUploadEventArguments
+import sys
+import os
+import tempfile
 MultiPartParser.spool_max_size = 1024 * 1024 * 50
+
+
+# 如果被 PyInstaller 打包（frozen），尝试把 sys.argv[0] 指向实际的脚本文件（明文）
+if getattr(sys, 'frozen', False):
+    # 优先从 sys._MEIPASS（PyInstaller 解压目录）寻找 main.py
+    meipass = getattr(sys, '_MEIPASS', None)
+    if meipass:
+        candidate = os.path.join(meipass, 'main.py')
+        if os.path.exists(candidate):
+            sys.argv[0] = candidate
+    else:
+        # 回退：把当前 __main__ 的源写入临时文件并指向它（尽量避免，inspect 在 frozen 下可能失败）
+        try:
+            import inspect
+            src = inspect.getsource(sys.modules['__main__'])
+            fd, path = tempfile.mkstemp(suffix='.py', text=True)
+            with os.fdopen(fd, 'w', encoding='utf-8') as f:
+                f.write(src)
+            sys.argv[0] = path
+        except Exception:
+            pass
 
 
 class Aplication:
@@ -193,13 +217,11 @@ class Aplication:
             Global_logger.clear()
         import asyncio
         ui.run_javascript('window.close();')
-        await asyncio.sleep(0.3)
+        await asyncio.sleep(1.5)
         try:
-            import os
             import signal
             os.kill(os.getpid(), signal.SIGINT)
         except Exception:
-            import os
             os._exit(0)
 
 
