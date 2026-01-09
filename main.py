@@ -104,7 +104,7 @@ class Aplication:
         db_select = ui.select(db_files, value=self.database.path, label='选择数据库文件').style(
             'width:300px; margin-bottom:20px;')
         ui.button('切换数据库', on_click=lambda: self._switch_database(
-            db_select.value)).style('margin-left:10px;')
+            db_select.value)).style('margin-left:10px;') # type: ignore
 
         ui.separator().style("width:800px; margin-top:10px; margin-bottom:10px;")
 
@@ -192,16 +192,16 @@ class Aplication:
         ui.navigate.to('/')
 
     def _on_single_check(self, value: str) -> None:
-        SearchEngine.search_single(self.database, value)
+        SearchEngine.search_single(self.database, value) # pyright: ignore[reportArgumentType]
 
     def _on_batch_check(self, value: str) -> None:
         isbn_list = value.splitlines()
-        SearchEngine.search_batch(self.database, isbn_list)
+        SearchEngine.search_batch(self.database, isbn_list) # type: ignore
 
     async def _send_to_query(self, event) -> None:
         files = getattr(event, 'files', None) or [getattr(event, 'file', None)]
         files = [f for f in files if f]
-        await SearchEngine.batch_clean(self.database, files)
+        await SearchEngine.batch_clean(self.database, files) # type: ignore
 
     async def _send_to_update(self, event) -> None:
         await self.database.update_database(single=event.file)
