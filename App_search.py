@@ -7,7 +7,7 @@ from pathlib import Path
 class SearchEngine:
     """ISBN查询引擎"""
     @staticmethod
-    def search_single(db: sqlite3, ISBN: str):
+    def search_single(db: sqlite3, ISBN: str): # type: ignore
         """查询ISBN是否存在"""
         isbn = ISBN.replace("-", "").replace(" ", "")
         if not isbn:
