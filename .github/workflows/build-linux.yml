@@ -1,8 +1,9 @@
-# GitHub Actions: Build Windows .exe using PyInstaller
-# - Builds on windows-latest from isbn_query.spec (onefile, console)
+# GitHub Actions: Build Linux binary using PyInstaller
+# - Builds on ubuntu-22.04 to keep the glibc baseline low (>= 2.35),
+#   so the artifact also runs on Debian 12/13 and other older distros
 # - Uploads build artifact and creates a GitHub Release when triggered by a tag
 
-name: Build Windows exe (PyInstaller)
+name: Build Linux binary (PyInstaller)
 
 on:
   workflow_dispatch:
@@ -17,18 +18,18 @@ on:
   pull_request:
 
 concurrency:
-  group: build-windows-${{ github.ref }}
+  group: build-linux-${{ github.ref }}
   cancel-in-progress: true
 
 env:
   APP_NAME: ISBNQuery
   OUTPUT_DIR: out
-  DIST_ZIP_NAME: ISBNQuery-windows-x64.zip
+  DIST_TAR_NAME: ISBNQuery-linux-x64.tar.gz
 
 jobs:
   build:
-    name: Build Windows executable
-    runs-on: windows-latest
+    name: Build Linux binary
+    runs-on: ubuntu-22.04
     env:
       PYTHON_VERSION: ${{ github.event.inputs.python-version || '3.11' }}
 
@@ -44,42 +45,49 @@ jobs:
       - name: Cache pip
         uses: actions/cache@v4
         with:
-          path: ~\AppData\Local\pip\Cache
-          key: pip-${{ env.PYTHON_VERSION }}-${{ hashFiles('**/requirements.txt') }}
+          path: ~/.cache/pip
+          key: pip-linux-${{ env.PYTHON_VERSION }}-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
-            pip-${{ env.PYTHON_VERSION }}-
+            pip-linux-${{ env.PYTHON_VERSION }}-
 
       - name: Install dependencies
-        shell: pwsh
         run: |
           python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
           python -m pip check
 
       - name: Build with PyInstaller
-        shell: pwsh
         run: |
-          if (Test-Path build) { Remove-Item build -Recurse -Force }
-          if (Test-Path dist) { Remove-Item dist -Recurse -Force }
-          # 注意：参数必须逐个传入。PyInstaller 从 spec 构建时，
-          # onefile/程序名等已在 spec 内定义，命令行只允许 --noconfirm/--clean。
+          rm -rf build dist
           python -m PyInstaller --noconfirm --clean isbn_query.spec
 
-      - name: Package artifact and compute checksum
-        shell: pwsh
+      - name: Smoke test
         run: |
-          New-Item -ItemType Directory -Force -Path $env:OUTPUT_DIR | Out-Null
-          $exe = "dist\$env:APP_NAME.exe"
-          if (-not (Test-Path $exe)) { throw "构建产物不存在：$exe" }
-          Compress-Archive -Path $exe -DestinationPath "$env:OUTPUT_DIR\$env:DIST_ZIP_NAME" -Force
-          $hash = (Get-FileHash "$env:OUTPUT_DIR\$env:DIST_ZIP_NAME" -Algorithm SHA256).Hash
-          "$hash  $env:DIST_ZIP_NAME" | Out-File "$env:OUTPUT_DIR\$env:DIST_ZIP_NAME.sha256" -Encoding ascii
-          Get-ChildItem $env:OUTPUT_DIR
+          ./dist/ISBNQuery &
+          APP_PID=$!
+          ok=0
+          for i in $(seq 1 30); do
+            if curl -fsS -o /dev/null http://127.0.0.1:8080/; then ok=1; break; fi
+            sleep 1
+          done
+          kill $APP_PID 2>/dev/null || true
+          if [ "$ok" -ne 1 ]; then
+            echo "::error::二进制启动后 30 秒内未响应 HTTP 请求"
+            exit 1
+          fi
+          echo "冒烟测试通过：二进制可正常启动并响应 HTTP"
+
+      - name: Package artifact and compute checksum
+        run: |
+          mkdir -p "$OUTPUT_DIR"
+          tar -czf "$OUTPUT_DIR/$DIST_TAR_NAME" -C dist "$APP_NAME"
+          sha256sum "$OUTPUT_DIR/$DIST_TAR_NAME" > "$OUTPUT_DIR/$DIST_TAR_NAME.sha256"
+          ls -la "$OUTPUT_DIR"
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.APP_NAME }}-windows-x64
+          name: ${{ env.APP_NAME }}-linux-x64
           path: ${{ env.OUTPUT_DIR }}
 
       - name: Create release (on tag push)
@@ -93,4 +101,4 @@ jobs:
           name: Release ${{ github.ref_name }}
           body: |
             Automated build of ${{ env.APP_NAME }}.
-            Built with Python ${{ env.PYTHON_VERSION }} on ${{ runner.os }}.
+            Built with Python ${{ env.PYTHON_VERSION }} on ${{ runner.os }} (glibc baseline: 2.35).
