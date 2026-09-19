@@ -87,8 +87,10 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           artifacts: ${{ env.OUTPUT_DIR }}/*
+          allowUpdates: true
+          replacesArtifacts: true
           tag: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
           body: |
-            Automated build of ${{ env.APP_NAME }} for Windows.
+            Automated build of ${{ env.APP_NAME }}.
             Built with Python ${{ env.PYTHON_VERSION }} on ${{ runner.os }}.

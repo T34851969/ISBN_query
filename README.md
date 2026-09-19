@@ -104,16 +104,23 @@ ISBN_query/
 
 实测参考（30 万行数据）：解析 1.35s、建库 0.5s、万条批量查询 0.02s；旧版生成的 `.db` 文件可直接使用（表结构完全兼容）。
 
-## 打包 Windows exe
+## 打包发布
 
-在 Windows 环境执行（也可推送到 GitHub 由 `.github/workflows/build-windows.yml` 自动构建）：
+本地打包（在与目标平台一致的操作系统上执行）：
 
 ```bash
 pip install -r requirements.txt
 python -m PyInstaller --noconfirm --clean isbn_query.spec
 ```
 
-产物为 `dist/ISBNQuery.exe`，双击运行后浏览器访问本地端口。
+产物：Windows 为 `dist/ISBNQuery.exe`（双击运行后浏览器访问本地端口）；Linux 为 `dist/ISBNQuery`（`./ISBNQuery` 启动后浏览器访问本地端口）。
+
+也可推送代码由 GitHub Actions 自动构建：
+
+- `.github/workflows/build-windows.yml` → `ISBNQuery-windows-x64.zip`
+- `.github/workflows/build-linux.yml` → `ISBNQuery-linux-x64.tar.gz`（构建于 Ubuntu 22.04，glibc ≥ 2.35，兼容 Debian 12/13 等发行版；CI 内含启动冒烟测试）
+
+产物在 Actions Artifacts 下载；打 `v*.*.*` 标签时自动发布到 GitHub Releases（两个平台产物并入同一 Release）。
 
 ## 常见问题
 
