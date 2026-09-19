@@ -1,0 +1,10 @@
+# Runtime dependencies for ISBN_query
+pandas>=2.2.0,<4
+openpyxl>=3.1.2
+python-calamine>=0.2.0
+nicegui>=1.19.0
+fastapi>=0.95.2
+uvicorn>=0.22.0
+
+# Development / build-time
+pyinstaller>=5.10.0
