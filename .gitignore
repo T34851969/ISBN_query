@@ -1,11 +1,4 @@
-bin/
-obj/
 dist/
-out/
 output/
-TestResults/
-.vs/
 *.db
 log.txt
-config.json
-*.user
