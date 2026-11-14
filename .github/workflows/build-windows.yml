@@ -1,0 +1,71 @@
+# GitHub Actions: Build Windows single-file binary (dotnet publish)
+# - windows-latest 上构建自包含单文件 ISBNQuery.exe（含启动冒烟测试 --selftest）
+# - 上传构建产物；打 v*.*.* 标签时自动创建 GitHub Release
+
+name: Build Windows binary (dotnet)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    tags: ['v*.*.*']
+  pull_request:
+
+concurrency:
+  group: build-windows-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  APP_NAME: ISBNQuery
+
+jobs:
+  build:
+    name: Build Windows binary
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Run unit tests
+        run: dotnet test tests/ISBNQuery.Core.Tests/ISBNQuery.Core.Tests.csproj -c Release
+
+      - name: Publish single-file exe
+        run: dotnet publish src/ISBNQuery/ISBNQuery.csproj -c Release -o dist -p:DebugType=none -p:DebugSymbols=false
+
+      - name: Smoke test (--selftest)
+        run: |
+          ./dist/ISBNQuery.exe --selftest
+
+      - name: Package artifact and compute checksum
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path out | Out-Null
+          Compress-Archive -Path dist/ISBNQuery.exe -DestinationPath out/ISBNQuery-windows-x64.zip -Force
+          $h = (Get-FileHash out/ISBNQuery-windows-x64.zip -Algorithm SHA256).Hash
+          "$h  ISBNQuery-windows-x64.zip" | Out-File out/ISBNQuery-windows-x64.zip.sha256 -Encoding ascii
+          Get-ChildItem out
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.APP_NAME }}-windows-x64
+          path: out/
+
+      - name: Create release (on tag push)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: out/*
+          allowUpdates: true
+          replacesArtifacts: true
+          tag: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: |
+            Automated build of ${{ env.APP_NAME }} (Windows x64, .NET 10 self-contained single file).
+            下载解压后双击 ISBNQuery.exe 即用，无需安装 .NET 运行时。
