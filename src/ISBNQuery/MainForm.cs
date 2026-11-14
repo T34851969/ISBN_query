@@ -59,6 +59,10 @@ internal sealed class MainForm : Form
         Size = new Size(980, 720);
         AllowDrop = true;
 
+        // Timer 先于布局创建：ApplyDbState() 在构造期就会经 Status() 触碰 _statusTimer
+        _uiTimer = new System.Windows.Forms.Timer { Interval = 300 };
+        _statusTimer = new System.Windows.Forms.Timer { Interval = 4000 };
+
         _progress = new Progress<(double Value, string Label)>(OnProgress);
         DragEnter += OnDragEnter;
         DragDrop += OnDragDrop;
@@ -76,11 +80,9 @@ internal sealed class MainForm : Form
             _pushedCount = lines.Length;
         }
 
-        _uiTimer = new System.Windows.Forms.Timer { Interval = 300 };
         _uiTimer.Tick += (_, _) => PollLogs();
         _uiTimer.Start();
 
-        _statusTimer = new System.Windows.Forms.Timer { Interval = 4000 };
         _statusTimer.Tick += (_, _) => { _statusLabel.Text = ""; _statusTimer.Stop(); };
     }
 
