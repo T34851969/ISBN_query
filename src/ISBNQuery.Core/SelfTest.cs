@@ -97,13 +97,15 @@ public static class SelfTest
             log.WriteLine("[3] 建库/单查/批查/分批 OK");
         }
 
-        // ---- 4. 更新（Temp_ISBN + INSERT OR IGNORE）----
+        // ---- 4. 更新（Temp_ISBN + 先查后插去重）----
+        // 注意：第三节第二次 Create(many) 已重建 ISBN_table，"已存在"行需先入库造基线。
         using (var db = new IsbnDatabase(dbPath))
         {
+            db.Update(new List<string> { "9787111123456", "9787111123457" });   // 造基线
             var added = db.Update(new List<string>
             {
-                "9787111123456",          // 已存在
-                "9787111123457",          // 已存在
+                "9787111123456",          // 已存在 → 跳过
+                "9787111123457",          // 已存在 → 跳过
                 "9787309000001",          // 新
             });
             Assert(added == 1, $"新增计数: {added} != 1");
