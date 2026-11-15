@@ -1,0 +1,37 @@
+name: ISBNQuery Build & Selftest (self-hosted Windows)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-selftest:
+    runs-on: [self-hosted, isbnq]
+    if: github.event_name != 'pull_request'
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Unit tests (xUnit 38)
+        shell: cmd
+        run: scripts\build.cmd test
+
+      - name: Smoke selftest (7 sections)
+        shell: cmd
+        run: scripts\build.cmd selftest
+
+      - name: Publish single-file exe
+        shell: cmd
+        run: scripts\build.cmd publish
+
+      - name: Upload exe artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ISBNQuery-exe
+          path: dist/ISBNQuery.exe
+          retention-days: 14
