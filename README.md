@@ -37,7 +37,7 @@ ISBNQuery.sln
 │   └── Program.cs
 ├── tests/ISBNQuery.Core.Tests/    # xUnit（含旧 .db 兼容、IN 分批 >500 等）
 ├── bench/IsbnBench/               # 30 万行性能基准（对比 Python 版）
-└── .github/workflows/build-windows.yml
+└── .github/workflows/build.yml
 ```
 
 ## 开发与构建
