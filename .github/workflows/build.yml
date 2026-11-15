@@ -21,13 +21,13 @@ jobs:
         shell: cmd
         run: scripts\build.cmd test
 
-      - name: Smoke selftest (7 sections)
-        shell: cmd
-        run: scripts\build.cmd selftest
-
       - name: Publish single-file exe
         shell: cmd
         run: scripts\build.cmd publish
+
+      - name: Smoke selftest (7 sections)
+        shell: cmd
+        run: scripts\build.cmd selftest
 
       - name: Upload exe artifact
         uses: actions/upload-artifact@v4
