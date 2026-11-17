@@ -19,6 +19,8 @@ internal sealed class MainForm : Form
 
     // ---- 状态 ----
     private bool _busy;
+    // 数据库就绪的「意图」：构造期 Control.Visible 不可信，用它驱动控件启停。
+    private bool _dbReady;
     private List<(string Isbn, bool Exists)> _batchItems = new();
 
     // 日志轮询状态（对应 Python 版 _start_state_timer 的非局部变量）
@@ -66,7 +68,14 @@ internal sealed class MainForm : Form
         _progress = new Progress<(double Value, string Label)>(OnProgress);
         DragEnter += OnDragEnter;
         DragDrop += OnDragDrop;
-        Shown += (_, _) => _taskbar.Attach(Handle);
+        Shown += (_, _) =>
+        {
+            _taskbar.Attach(Handle);
+            // 构造期窗口尚未显示，Control.Visible 的 getter 恒为 false（父级不可见），
+            // 据此算出的 UpdateLockables() 会把「选择文件（创建数据库）」永久禁用。
+            // 窗口真正显示后再跑一次状态机，按钮才可用。
+            ApplyDbState();
+        };
 
         BuildLayout();
         RestoreLastDb();
@@ -399,6 +408,7 @@ internal sealed class MainForm : Form
     private void ApplyDbState()
     {
         bool ready = DbReady;
+        _dbReady = ready;
         _initPanel.Visible = !ready;
         _mainTabs.Visible = ready;
         RefreshDbCombo();
@@ -408,10 +418,13 @@ internal sealed class MainForm : Form
 
     private void UpdateLockables()
     {
-        bool enabled = _mainTabs.Visible && !_busy;
+        // 不能用 Control.Visible 判断「当前该用哪一面」：它是「自身可见且所有父级可见」的合成值，
+        // Form 尚未 Show() 时恒为 false，构造期算出的 Enabled 会永久卡在禁用状态。
+        // 改判状态机自持的意图 _dbReady，与窗口是否已显示无关。
+        bool enabled = _dbReady && !_busy;
         foreach (var c in _lockablesMain)
             c.Enabled = enabled;
-        _initBtn.Enabled = _initPanel.Visible && !_busy;
+        _initBtn.Enabled = !_dbReady && !_busy;
     }
 
     private void RefreshDbCombo()
